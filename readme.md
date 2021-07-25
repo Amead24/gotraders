@@ -61,5 +61,14 @@ func GetAccount(token string, username string) (Credentials, error) {
 ```
 
 
-### lesson 1: ???
+### lesson 1: trailling "%"
 
+
+Trailing "%" found when using the CLI, looks like `fmt.Printf()` [does not pad a trailing new line](https://stackoverflow.com/a/59094048/5660197).
+
+```
+a114383@C02XV0P9JHD4 gotraders % go run . init -u brew    
+Username & Token written to ~/.spacetravels/credentials% 
+```
+
+Fixed with 

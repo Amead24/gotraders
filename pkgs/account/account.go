@@ -83,12 +83,7 @@ func SetUsernameAndToken(username string) (string, error) {
 
 	creds := fmt.Sprintf("username=%s\ntoken=%s", username, responseClaim.Token)
 	w := bufio.NewWriter(f)
-	n4, err := w.WriteString(creds)
-	if err != nil {
-		return "", err
-	}
-
-	fmt.Printf("wrote %d bytes\n", n4)
+	w.WriteString(creds)
 	w.Flush()
 
 	return resp.Status, nil

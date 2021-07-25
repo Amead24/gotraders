@@ -24,7 +24,7 @@ func main() {
 						return err
 					}
 
-					fmt.Printf("Server Responded with %s", resp)
+					fmt.Printf("Server Responded with %s\n", resp)
 					return nil
 				},
 			},
@@ -46,7 +46,7 @@ func main() {
 						return err
 					}
 
-					fmt.Printf("Username & Token written to ~/.spacetravels/credential")
+					fmt.Printf("Username & Token written to ~/.spacetravels/credential\n")
 					return nil
 				},
 			},
@@ -59,7 +59,7 @@ func main() {
 						return err
 					}
 
-					fmt.Printf("Account Information:\n%+v", acct)
+					fmt.Printf("Account Information:\n%+v\n", acct)
 					return nil
 				},
 			},
@@ -72,7 +72,7 @@ func main() {
 						return err
 					}
 
-					fmt.Printf("Loans:\n%+v", loans)
+					fmt.Printf("Loans:\n%+v\n", loans)
 					return nil
 				},
 			},
