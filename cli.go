@@ -46,7 +46,7 @@ func main() {
 						return err
 					}
 
-					fmt.Printf("Username & Token written to ~/.spacetravels/credentials")
+					fmt.Printf("Username & Token written to ~/.spacetravels/credential")
 					return nil
 				},
 			},
@@ -54,12 +54,12 @@ func main() {
 				Name:  "status",
 				Usage: "get status of account",
 				Action: func(c *cli.Context) error {
-					acct, err := account.ListAccount()
+					acct, err := account.GetAccount("", "")
 					if err != nil {
 						return err
 					}
 
-					fmt.Printf("Account info == %+v", acct)
+					fmt.Printf("Account Information:\n%+v", acct)
 					return nil
 				},
 			},

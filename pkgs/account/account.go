@@ -17,6 +17,22 @@ type Credentials struct {
 	Token    string
 }
 
+type Account struct {
+	Credits        int    `json:"credits,omitempty"`
+	JoinedAt       string `json:"joinedAt,omitempty"`
+	ShipCount      int    `json:"shipCount,omitempty"`
+	StructureCount int    `json:"structureCount,omitempty"`
+	Username       string `json:"username,omitempty"`
+}
+
+func (a Account) String() string {
+	return fmt.Sprintf("Username:%s\nCredits:%d\nShips:%d\nStructures:%d", a.Username, a.Credits, a.ShipCount, a.StructureCount)
+}
+
+type User struct {
+	User Account `json:"user"`
+}
+
 func SetUsernameAndToken(username string) (string, error) {
 	// would be niice to wrap all commands in tthe CLI
 	// to not run unless this has already been called
@@ -99,36 +115,32 @@ func GetUsernameAndToken() (Credentials, error) {
 	return Credentials{Username: credentials_data["username"], Token: credentials_data["token"]}, nil
 }
 
-func ListAccount() (string, error) {
-	type Account struct {
-		Credits        int    `json:"credits,omitempty"`
-		JoinedAt       string `json:"joinedAt,omitempty"`
-		ShipCount      int    `json:"shipCount,omitempty"`
-		StructureCount int    `json:"structureCount,omitempty"`
-		Username       string `json:"username,omitempty"`
-	}
+func GetAccount(token string, username string) (Account, error) {
+	var creds Credentials
 
-	type User struct {
-		User Account `json:"user"`
-	}
-
-	creds, err := GetUsernameAndToken()
-	if err != nil {
-		return "", err
+	if token == "" || username == "" {
+		// try to load credentials based on ~/.spacetravlers/credentials file
+		creds, _ = GetUsernameAndToken()
+	} else {
+		// should we validate these are correct?
+		creds = Credentials{
+			Username: username,
+			Token:    token,
+		}
 	}
 
 	url := fmt.Sprintf("https://api.spacetraders.io/my/account?token=%s", url.QueryEscape(creds.Token))
 	resp, err := http.Get(url)
 	if err != nil {
-		return "", err
+		return Account{}, err
 	}
 
 	// given the response, format it into the new struct
-	var responseUser User
-	err = json.NewDecoder(resp.Body).Decode(&responseUser)
+	var user User
+	err = json.NewDecoder(resp.Body).Decode(&user)
 	if err != nil {
-		return "", err
+		return Account{}, err
 	}
 
-	return fmt.Sprintf("%+v", responseUser.User), nil
+	return user.User, nil
 }
