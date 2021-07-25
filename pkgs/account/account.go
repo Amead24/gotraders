@@ -1,4 +1,4 @@
-package pkgs
+package account
 
 import (
 	"bufio"

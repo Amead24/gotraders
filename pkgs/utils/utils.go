@@ -1,4 +1,4 @@
-package pkgs
+package utils
 
 import "net/http"
 

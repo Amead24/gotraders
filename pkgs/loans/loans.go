@@ -1,4 +1,4 @@
-package pkgs
+package loans
 
 import (
 	"encoding/json"
