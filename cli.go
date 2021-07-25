@@ -24,7 +24,7 @@ func main() {
 						return err
 					}
 
-					fmt.Printf("Response = %s", resp)
+					fmt.Printf("Server Responded with %s", resp)
 					return nil
 				},
 			},

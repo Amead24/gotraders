@@ -99,7 +99,7 @@ func GetUsernameAndToken() (Credentials, error) {
 	return Credentials{Username: credentials_data["username"], Token: credentials_data["token"]}, nil
 }
 
-func listAccount() (string, error) {
+func ListAccount() (string, error) {
 	type Account struct {
 		Credits        int    `json:"credits,omitempty"`
 		JoinedAt       string `json:"joinedAt,omitempty"`

@@ -15,7 +15,7 @@ cli.go:8:2: found packages github (account.go) and account (account_test.go) in 
 
 Solution: https://stackoverflow.com/questions/6997524/the-declared-package-does-not-match-the-expected-package/25220460
 
-Turns out by default you need to CD into each directory to run a test else the compiled package script and package script_test will run into conflicts when it gets run.
+Turns out by default you need to CD into each directory to run a test else the compiled package script and package script_test will run into conflicts when it gets run.  Inside each package directory we rename the `package` from `github.com/...` to the directory name.
 
 ```
 $> go test ./...  # works
