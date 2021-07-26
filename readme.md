@@ -71,4 +71,20 @@ a114383@C02XV0P9JHD4 gotraders % go run . init -u brew
 Username & Token written to ~/.spacetravels/credentials% 
 ```
 
-Fixed with 
+Fixed with 1162a134284fd963970f6659ce9e146b76de970a
+
+
+### lesson 2: ovrloading struct string method
+
+Allows a cleaner interface to the original problem, now our funnction `GetAccount()` returns an `Account` type which the caller can either user or pretty print by default using the default `fmt.Printf("%+v", GetAccount())`.
+
+
+### Learning goals for week of 07/25/2021
+
+1. the amount if if err != nil in the code base is too damn high
+
+2. There has got to be a better way to keep track of all the json payloads
+
+3. Anotheer todo, find out why POST request requires a bytes object for the third parameter
+
+ I might have complicated things a bit, [this post](https://blog.logrocket.com/making-http-requests-in-go/) seems to suggest using ioutils.ReadAll() over bytes.

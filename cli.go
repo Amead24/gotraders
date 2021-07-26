@@ -65,14 +65,52 @@ func main() {
 			},
 			{
 				Name:  "list",
-				Usage: "list out loans, to be paramed for: https://api.spacetraders.io/#api-types",
+				Usage: "list out smaller types: https://api.spacetraders.io/#api-types",
+				Subcommands: []*cli.Command{
+					{
+						Name:  "loans",
+						Usage: "List out all available loans",
+						Flags: []cli.Flag{
+							&cli.StringFlag{
+								Name:    "filter",
+								Usage:   "a key & value pair to map on",
+								Aliases: []string{"f"},
+							},
+						},
+						Action: func(c *cli.Context) error {
+							filter := c.String("filter")
+
+							loans, err := loans.ListLoans(filter)
+							if err != nil {
+								return err
+							}
+
+							fmt.Printf("%+v", loans)
+							return nil
+						},
+					},
+				},
+			},
+			{
+				// Has me thinking if you should do both with this command?
+				// gotraders loan list vs. gotraders list loans
+				Name:  "loan",
+				Usage: "take out a loan",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:    "type",
+						Usage:   "Type of loan to takeout, use `gotraders list loans` to see them all",
+						Aliases: []string{"t"},
+					},
+				},
 				Action: func(c *cli.Context) error {
-					loans, err := loans.ListLoans()
+					loanType := c.String("type")
+					loan, err := loans.TakeoutLoan(loanType)
 					if err != nil {
 						return err
 					}
 
-					fmt.Printf("Loans:\n%+v\n", loans)
+					fmt.Printf("Recieved loan:\n%+v", loan)
 					return nil
 				},
 			},
