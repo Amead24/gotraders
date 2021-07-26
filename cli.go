@@ -7,6 +7,7 @@ import (
 
 	"github.com/amead24/gotraders/pkgs/account"
 	"github.com/amead24/gotraders/pkgs/loans"
+	"github.com/amead24/gotraders/pkgs/ships"
 	"github.com/amead24/gotraders/pkgs/utils"
 	"github.com/urfave/cli/v2"
 )
@@ -86,6 +87,28 @@ func main() {
 							}
 
 							fmt.Printf("%+v", loans)
+							return nil
+						},
+					},
+					{
+						Name:  "ships",
+						Usage: "List out all available ships",
+						Flags: []cli.Flag{
+							&cli.StringFlag{
+								Name:    "filter",
+								Usage:   "a key & value pair to map on",
+								Aliases: []string{"f"},
+							},
+						},
+						Action: func(c *cli.Context) error {
+							filter := c.String("filter")
+
+							ships, err := ships.ListShips(filter)
+							if err != nil {
+								return err
+							}
+
+							fmt.Println(ships)
 							return nil
 						},
 					},
