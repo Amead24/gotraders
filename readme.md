@@ -90,3 +90,4 @@ Allows a cleaner interface to the original problem, now our funnction `GetAccoun
  I might have complicated things a bit, [this post](https://blog.logrocket.com/making-http-requests-in-go/) seems to suggest using ioutils.ReadAll() over bytes.  Also when sending query params its easiest to 
 
 4. betterr understand reflect package
+i'd like to do something to the equiv of python's `getaddr(obj, key) == value`

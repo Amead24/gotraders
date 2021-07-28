@@ -1,6 +1,7 @@
 package ships
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -32,6 +33,30 @@ type Ship struct {
 
 type ShipListing struct {
 	Ships []Ship `json:"shipListings,omitempty"`
+}
+
+// i've given up trying to create names -
+// there's really got to be a better way
+type BuyShipShipStruct struct {
+	Cargo          []string `json:"cargo,omitempty"`
+	Class          string   `json:"class,omitempty"`
+	Id             string   `json:"id,omitempty"`
+	LoadingSpeed   int      `json:"loadingSpeed,omitempty"`
+	Location       string   `json:"location,omitempty"`
+	Manufacturer   string   `json:"manufacturer,omitempty"`
+	MaxCargo       int      `json:"maxCargo,omitempty"`
+	Plating        int      `json:"plating,omitempty"`
+	SpaceAvailable int      `json:"spaceAvailable,omitempty"`
+	Speed          int      `json:"speed,omitempty"`
+	Type           string   `json:"type,omitempty"`
+	Weapons        int      `json:"weapons,omitempty"`
+	X              int      `json:"x,omitempty"`
+	Y              int      `json:"y,omitempty"`
+}
+
+type BuyShipStruct struct {
+	Credits int               `json:"credits,omitempty"`
+	Ship    BuyShipShipStruct `json:"ship,omitempty"`
 }
 
 func ListShips(filter string) (ShipListing, error) {
@@ -86,4 +111,32 @@ func ListShips(filter string) (ShipListing, error) {
 
 		return ShipListing{Ships: filteredShipListing}, nil
 	}
+}
+
+func BuyShip(shipType string, location string) (BuyShipStruct, error) {
+	creds, err := account.GetUsernameAndToken()
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	url := fmt.Sprintf("https://api.spacetraders.io/my/ships?token=%s", url.QueryEscape(creds.Token))
+	postBody, _ := json.Marshal(map[string]string{
+		"type":     shipType,
+		"location": location,
+	})
+	responseBody := bytes.NewBuffer(postBody)
+	resp, err := http.Post(url, "application/json", responseBody)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer resp.Body.Close()
+
+	// given the response, format it into the new struct
+	var buyShipResponse BuyShipStruct
+	err = json.NewDecoder(resp.Body).Decode(&buyShipResponse)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	return buyShipResponse, nil
 }

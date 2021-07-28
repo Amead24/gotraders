@@ -132,6 +132,33 @@ func main() {
 							return nil
 						},
 					},
+					{
+						Name:  "ship",
+						Usage: "buy a ship",
+						Flags: []cli.Flag{
+							&cli.StringFlag{
+								Name:    "type",
+								Usage:   "which type to buy",
+								Aliases: []string{"t"},
+							},
+							&cli.StringFlag{
+								Name:    "location",
+								Usage:   "location of the ship",
+								Aliases: []string{"l"},
+							},
+						},
+						Action: func(c *cli.Context) error {
+							shipType := c.String("type")
+							shipLocation := c.String("location")
+							boughtShip, err := ships.BuyShip(shipType, shipLocation)
+							if err != nil {
+								return err
+							}
+
+							fmt.Printf("Bought ship: %+v\n", boughtShip)
+							return nil
+						},
+					},
 				},
 			},
 		},
