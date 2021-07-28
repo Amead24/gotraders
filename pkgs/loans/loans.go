@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -74,13 +73,6 @@ func ListLoans(filter string) (Loans, error) {
 		log.Fatalln(err)
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	fmt.Printf("body == %s", string(body))
-
 	// given the response, format it into the new struct
 	var loans Loans
 	err = json.NewDecoder(resp.Body).Decode(&loans)
@@ -91,7 +83,7 @@ func ListLoans(filter string) (Loans, error) {
 	return loans, nil
 }
 
-func TakeoutLoan(loanType string) (Debt, error) {
+func BuyLoan(loanType string) (Debt, error) {
 	creds, err := account.GetUsernameAndToken()
 	if err != nil {
 		log.Fatalln(err)

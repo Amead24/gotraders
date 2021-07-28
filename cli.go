@@ -115,26 +115,23 @@ func main() {
 				},
 			},
 			{
-				// Has me thinking if you should do both with this command?
-				// gotraders loan list vs. gotraders list loans
-				Name:  "loan",
-				Usage: "take out a loan",
-				Flags: []cli.Flag{
-					&cli.StringFlag{
-						Name:    "type",
-						Usage:   "Type of loan to takeout, use `gotraders list loans` to see them all",
-						Aliases: []string{"t"},
-					},
-				},
-				Action: func(c *cli.Context) error {
-					loanType := c.String("type")
-					loan, err := loans.TakeoutLoan(loanType)
-					if err != nil {
-						return err
-					}
+				Name:  "buy",
+				Usage: "buy something: https://api.spacetraders.io/#api-types",
+				Subcommands: []*cli.Command{
+					{
+						Name:  "debt",
+						Usage: "takeout a loan",
+						Action: func(c *cli.Context) error {
+							loanType := c.String("type")
+							loan, err := loans.BuyLoan(loanType)
+							if err != nil {
+								return err
+							}
 
-					fmt.Printf("Recieved loan:\n%+v", loan)
-					return nil
+							fmt.Printf("Recieved loan:\n%+v", loan)
+							return nil
+						},
+					},
 				},
 			},
 		},
