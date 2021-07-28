@@ -82,6 +82,7 @@ Allows a cleaner interface to the original problem, now our funnction `GetAccoun
 ### Learning goals for week of 07/25/2021
 
 1. the amount if if err != nil in the code base is too damn high
+When to use `panic`: "the main thing is that it should be utilized in cases where you don't feel like your program can recover from the state you're in" -sajan
 
 2. There has got to be a better way to keep track of all the json payloads
 
@@ -91,3 +92,4 @@ Allows a cleaner interface to the original problem, now our funnction `GetAccoun
 
 4. betterr understand reflect package
 i'd like to do something to the equiv of python's `getaddr(obj, key) == value`
+

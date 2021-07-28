@@ -12,6 +12,9 @@ import (
 	"github.com/amead24/gotraders/pkgs/account"
 )
 
+// thinking about these structs - It only makes sense to return these objects
+// if there would be a use for them.  If the goal is only to display them to the terminal
+// then we might not need to make them public.
 type PurchaseLocation struct {
 	Location string `json:"location,omitempty"`
 	Price    int    `json:"price,omitempty"`
@@ -59,7 +62,7 @@ type BuyShipStruct struct {
 	Ship    BuyShipShipStruct `json:"ship,omitempty"`
 }
 
-func ListShips(filter string) (ShipListing, error) {
+func ListOtherShips(filter string) (ShipListing, error) {
 	creds, err := account.GetUsernameAndToken()
 	if err != nil {
 		log.Fatalln(err)
@@ -111,6 +114,31 @@ func ListShips(filter string) (ShipListing, error) {
 
 		return ShipListing{Ships: filteredShipListing}, nil
 	}
+}
+
+func ListMyShips() ([]BuyShipShipStruct, error) {
+	type MyShips struct {
+		Ships []BuyShipShipStruct `json:"ships,omitempty"`
+	}
+
+	creds, err := account.GetUsernameAndToken()
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	url := fmt.Sprintf("https://api.spacetraders.io/my/ships?token=%s", url.QueryEscape(creds.Token))
+	resp, err := http.Get(url)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	var myShips MyShips
+	err = json.NewDecoder(resp.Body).Decode(&myShips)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	return myShips.Ships, nil
 }
 
 func BuyShip(shipType string, location string) (BuyShipStruct, error) {

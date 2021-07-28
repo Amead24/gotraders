@@ -40,6 +40,7 @@ func main() {
 					},
 				},
 				Action: func(c *cli.Context) error {
+					// it would be a nice todo to get the starter loan on init
 					username := c.String("username")
 					_, err := account.SetUsernameAndToken(username)
 
@@ -90,28 +91,6 @@ func main() {
 							return nil
 						},
 					},
-					{
-						Name:  "ships",
-						Usage: "List out all available ships",
-						Flags: []cli.Flag{
-							&cli.StringFlag{
-								Name:    "filter",
-								Usage:   "a key & value pair to map on",
-								Aliases: []string{"f"},
-							},
-						},
-						Action: func(c *cli.Context) error {
-							filter := c.String("filter")
-
-							ships, err := ships.ListShips(filter)
-							if err != nil {
-								return err
-							}
-
-							fmt.Println(ships)
-							return nil
-						},
-					},
 				},
 			},
 			{
@@ -132,19 +111,49 @@ func main() {
 							return nil
 						},
 					},
+				},
+			},
+			{
+				Name:  "ships",
+				Usage: "do shippy-stuff",
+				Subcommands: []*cli.Command{
 					{
-						Name:  "ship",
-						Usage: "buy a ship",
+						Name:  "list",
+						Usage: "List out all available ships",
 						Flags: []cli.Flag{
 							&cli.StringFlag{
-								Name:    "type",
-								Usage:   "which type to buy",
-								Aliases: []string{"t"},
+								Name:    "filter",
+								Usage:   "a key & value pair to map on",
+								Aliases: []string{"f"},
+							},
+						},
+						Action: func(c *cli.Context) error {
+							filter := c.String("filter")
+
+							ships, err := ships.ListOtherShips(filter)
+							if err != nil {
+								return err
+							}
+
+							fmt.Println(ships)
+							return nil
+						},
+					},
+					{
+						Name:  "buy",
+						Usage: "buy a ship based on a filter and location",
+						Flags: []cli.Flag{
+							&cli.StringFlag{
+								Name:     "type",
+								Usage:    "which type to buy",
+								Aliases:  []string{"t"},
+								Required: true,
 							},
 							&cli.StringFlag{
-								Name:    "location",
-								Usage:   "location of the ship",
-								Aliases: []string{"l"},
+								Name:     "location",
+								Usage:    "location of the ship",
+								Aliases:  []string{"l"},
+								Required: true,
 							},
 						},
 						Action: func(c *cli.Context) error {
@@ -156,6 +165,19 @@ func main() {
 							}
 
 							fmt.Printf("Bought ship: %+v\n", boughtShip)
+							return nil
+						},
+					},
+					{
+						Name:  "owned",
+						Usage: "display information on ships owned",
+						Action: func(c *cli.Context) error {
+							shipList, err := ships.ListMyShips()
+							if err != nil {
+								return err
+							}
+
+							fmt.Printf("Your Ships:\n%+v\n", shipList)
 							return nil
 						},
 					},
