@@ -39,15 +39,15 @@ func (ls Loans) String() string {
 }
 
 type DebtLoan struct {
-	Due             string `json:"due"`
-	Id              string `json:"id"`
-	RepaymentAmount int    `json:"repaymentAmount`
-	Status          string `json:"status"`
-	Type            string `json:"type"`
+	Due             string `json:"due,omitempty"`
+	Id              string `json:"id,omitempty"`
+	RepaymentAmount int    `json:"repaymentAmount,omitempty"`
+	Status          string `json:"status,omitempty"`
+	Type            string `json:"type,omitempty"`
 }
 
 func (dl DebtLoan) String() string {
-	return fmt.Sprintf("\tID: %d\n\tDue Date: %s\n\tBalance: %d\t\nStatus: %s\t\nType: %s\n", dl.Id, dl.Due, dl.RepaymentAmount, dl.Status, dl.Type)
+	return fmt.Sprintf("\n\tID: %s\n\tDue Date: %s\n\tBalance: %d\n\tStatus: %s\n\tType: %s\n", dl.Id, dl.Due, dl.RepaymentAmount, dl.Status, dl.Type)
 }
 
 type Debt struct {
@@ -81,6 +81,31 @@ func ListLoans(filter string) (Loans, error) {
 	}
 
 	return loans, nil
+}
+
+func ListOwnedLoans() ([]DebtLoan, error) {
+	type ListLoans struct {
+		Loans []DebtLoan `json:"loans,omitempty"`
+	}
+
+	creds, err := account.GetUsernameAndToken()
+	if err != nil {
+		return make([]DebtLoan, 0), err
+	}
+
+	url := fmt.Sprintf("https://api.spacetraders.io/my/loans?token=%s", creds.Token)
+	resp, err := http.Get(url)
+	if err != nil {
+		return make([]DebtLoan, 0), err
+	}
+
+	var listLoans ListLoans
+	err = json.NewDecoder(resp.Body).Decode(&listLoans)
+	if err != nil {
+		return make([]DebtLoan, 0), err
+	}
+
+	return listLoans.Loans, nil
 }
 
 func BuyLoan(loanType string) (Debt, error) {

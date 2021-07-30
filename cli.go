@@ -66,11 +66,11 @@ func main() {
 				},
 			},
 			{
-				Name:  "list",
-				Usage: "list out smaller types: https://api.spacetraders.io/#api-types",
+				Name:  "loans",
+				Usage: "do loans-stuff",
 				Subcommands: []*cli.Command{
 					{
-						Name:  "loans",
+						Name:  "list",
 						Usage: "List out all available loans",
 						Flags: []cli.Flag{
 							&cli.StringFlag{
@@ -91,15 +91,9 @@ func main() {
 							return nil
 						},
 					},
-				},
-			},
-			{
-				Name:  "buy",
-				Usage: "buy something: https://api.spacetraders.io/#api-types",
-				Subcommands: []*cli.Command{
 					{
-						Name:  "debt",
-						Usage: "takeout a loan",
+						Name:  "buy",
+						Usage: "take out a loan",
 						Action: func(c *cli.Context) error {
 							loanType := c.String("type")
 							loan, err := loans.BuyLoan(loanType)
@@ -108,6 +102,19 @@ func main() {
 							}
 
 							fmt.Printf("Recieved loan:\n%+v", loan)
+							return nil
+						},
+					},
+					{
+						Name:  "owned",
+						Usage: "list out all owned loans",
+						Action: func(c *cli.Context) error {
+							loans, err := loans.ListOwnedLoans()
+							if err != nil {
+								return err
+							}
+
+							fmt.Printf("These are the loans you owe:\n%+v\n", loans)
 							return nil
 						},
 					},
