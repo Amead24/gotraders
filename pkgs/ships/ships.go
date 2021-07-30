@@ -40,21 +40,27 @@ type ShipListing struct {
 
 // i've given up trying to create names -
 // there's really got to be a better way
+type Cargo struct {
+	Good        string `json:"good,omitempty"`
+	Quantity    int    `json:"quantity,omitempty"`
+	TotalVolume int    `json:"totalVolume,omitempty"`
+}
+
 type BuyShipShipStruct struct {
-	Cargo          []string `json:"cargo,omitempty"`
-	Class          string   `json:"class,omitempty"`
-	Id             string   `json:"id,omitempty"`
-	LoadingSpeed   int      `json:"loadingSpeed,omitempty"`
-	Location       string   `json:"location,omitempty"`
-	Manufacturer   string   `json:"manufacturer,omitempty"`
-	MaxCargo       int      `json:"maxCargo,omitempty"`
-	Plating        int      `json:"plating,omitempty"`
-	SpaceAvailable int      `json:"spaceAvailable,omitempty"`
-	Speed          int      `json:"speed,omitempty"`
-	Type           string   `json:"type,omitempty"`
-	Weapons        int      `json:"weapons,omitempty"`
-	X              int      `json:"x,omitempty"`
-	Y              int      `json:"y,omitempty"`
+	Cargo          []Cargo `json:"cargo,omitempty"`
+	Class          string  `json:"class,omitempty"`
+	Id             string  `json:"id,omitempty"`
+	LoadingSpeed   int     `json:"loadingSpeed,omitempty"`
+	Location       string  `json:"location,omitempty"`
+	Manufacturer   string  `json:"manufacturer,omitempty"`
+	MaxCargo       int     `json:"maxCargo,omitempty"`
+	Plating        int     `json:"plating,omitempty"`
+	SpaceAvailable int     `json:"spaceAvailable,omitempty"`
+	Speed          int     `json:"speed,omitempty"`
+	Type           string  `json:"type,omitempty"`
+	Weapons        int     `json:"weapons,omitempty"`
+	X              int     `json:"x,omitempty"`
+	Y              int     `json:"y,omitempty"`
 }
 
 type BuyShipStruct struct {

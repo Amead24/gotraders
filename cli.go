@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/amead24/gotraders/pkgs/account"
+	"github.com/amead24/gotraders/pkgs/goods"
 	"github.com/amead24/gotraders/pkgs/loans"
 	"github.com/amead24/gotraders/pkgs/ships"
 	"github.com/amead24/gotraders/pkgs/utils"
@@ -185,6 +186,70 @@ func main() {
 							}
 
 							fmt.Printf("Your Ships:\n%+v\n", shipList)
+							return nil
+						},
+					},
+				},
+			},
+			{
+				Name:  "goods",
+				Usage: "do market stuff",
+				Subcommands: []*cli.Command{
+					{
+						Name:  "list",
+						Usage: "list goods at market",
+						Flags: []cli.Flag{
+							&cli.StringFlag{
+								Name:     "symbol",
+								Usage:    "specify a symbol as filter",
+								Aliases:  []string{"s"},
+								Required: false,
+							},
+						},
+						Action: func(c *cli.Context) error {
+							symbol := c.String("symbol")
+							goodsList, err := goods.List(symbol)
+							if err != nil {
+								return nil
+							}
+
+							fmt.Printf("Goods available:\n%+v\n", goodsList)
+							return nil
+						},
+					},
+					{
+						Name:  "buy",
+						Usage: "buy a good",
+						Flags: []cli.Flag{
+							&cli.StringFlag{
+								Name:     "shipId",
+								Usage:    "-s shipId",
+								Aliases:  []string{"s"},
+								Required: true,
+							},
+							&cli.StringFlag{
+								Name:     "good",
+								Usage:    "nname of good",
+								Aliases:  []string{"g"},
+								Required: true,
+							},
+							&cli.IntFlag{
+								Name:     "quantity",
+								Usage:    "how much",
+								Aliases:  []string{"q"},
+								Required: true,
+							},
+						},
+						Action: func(c *cli.Context) error {
+							shipId := c.String("shipId")
+							good := c.String("good")
+							quantity := c.Int("quantity")
+							confirmation, err := goods.Buy(shipId, good, quantity)
+							if err != nil {
+								return nil
+							}
+
+							fmt.Sprintf("Order confirmed:\n%s\n", confirmation)
 							return nil
 						},
 					},
