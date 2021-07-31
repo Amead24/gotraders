@@ -249,7 +249,7 @@ func main() {
 								return nil
 							}
 
-							fmt.Sprintf("Order confirmed:\n%s\n", confirmation)
+							fmt.Printf("Order confirmed:\n%s\n", confirmation)
 							return nil
 						},
 					},

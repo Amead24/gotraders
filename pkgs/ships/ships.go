@@ -47,20 +47,20 @@ type Cargo struct {
 }
 
 type BuyShipShipStruct struct {
-	Cargo          []Cargo `json:"cargo,omitempty"`
-	Class          string  `json:"class,omitempty"`
 	Id             string  `json:"id,omitempty"`
-	LoadingSpeed   int     `json:"loadingSpeed,omitempty"`
 	Location       string  `json:"location,omitempty"`
-	Manufacturer   string  `json:"manufacturer,omitempty"`
-	MaxCargo       int     `json:"maxCargo,omitempty"`
-	Plating        int     `json:"plating,omitempty"`
-	SpaceAvailable int     `json:"spaceAvailable,omitempty"`
-	Speed          int     `json:"speed,omitempty"`
-	Type           string  `json:"type,omitempty"`
-	Weapons        int     `json:"weapons,omitempty"`
 	X              int     `json:"x,omitempty"`
 	Y              int     `json:"y,omitempty"`
+	Cargo          []Cargo `json:"cargo,omitempty"`
+	SpaceAvailable int     `json:"spaceAvailable,omitempty"`
+	Type           string  `json:"type,omitempty"`
+	Class          string  `json:"class,omitempty"`
+	MaxCargo       int     `json:"maxCargo,omitempty"`
+	LoadingSpeed   int     `json:"loadingSpeed,omitempty"`
+	Speed          int     `json:"speed,omitempty"`
+	Manufacturer   string  `json:"manufacturer,omitempty"`
+	Plating        int     `json:"plating,omitempty"`
+	Weapons        int     `json:"weapons,omitempty"`
 }
 
 type BuyShipStruct struct {
