@@ -9,6 +9,7 @@ import (
 	"github.com/amead24/gotraders/pkgs/goods"
 	"github.com/amead24/gotraders/pkgs/loans"
 	"github.com/amead24/gotraders/pkgs/ships"
+	"github.com/amead24/gotraders/pkgs/systems"
 	"github.com/amead24/gotraders/pkgs/utils"
 	"github.com/urfave/cli/v2"
 )
@@ -253,6 +254,19 @@ func main() {
 							return nil
 						},
 					},
+				},
+			},
+			{
+				Name:  "systems",
+				Usage: "list all systems",
+				Action: func(c *cli.Context) error {
+					planets, err := systems.List()
+					if err != nil {
+						return err
+					}
+
+					fmt.Println(planets)
+					return nil
 				},
 			},
 		},
