@@ -1,93 +1,82 @@
 package ships
 
 import (
-	"bytes"
-	"encoding/json"
-	"fmt"
 	"log"
-	"net/http"
-	"net/url"
 	"strings"
 
-	"github.com/amead24/gotraders/pkgs/account"
+	"github.com/amead24/gotraders/pkgs/utils"
 )
 
-// thinking about these structs - It only makes sense to return these objects
-// if there would be a use for them.  If the goal is only to display them to the terminal
-// then we might not need to make them public.
 type PurchaseLocation struct {
 	Location string `json:"location,omitempty"`
 	Price    int    `json:"price,omitempty"`
 	System   string `json:"system,omitempty"`
 }
 
-type Ship struct {
-	Class             string             `json:"class,omitempty"`
-	LoadingSpeed      int                `json:"loadingSpeed,omitempty"`
-	Manufacturer      string             `json:"manufacturer,omitempty"`
-	MaxCargo          int                `json:"maxCargo,omitempty"`
-	Plating           int                `json:"plating,omitempty"`
-	PurchaseLocations []PurchaseLocation `json:"purchaseLocations,omitempty"`
-	RestrictedGoods   []string           `json:"restrictedGoods,omitempty"`
-	Speed             int                `json:"speed,omitempty"`
-	Type              string             `json:"type,omitempty"`
-	Weapons           int                `json:"weapons,omitempty"`
-}
-
-type ShipListing struct {
-	Ships []Ship `json:"shipListings,omitempty"`
-}
-
-// i've given up trying to create names -
-// there's really got to be a better way
 type Cargo struct {
 	Good        string `json:"good,omitempty"`
 	Quantity    int    `json:"quantity,omitempty"`
 	TotalVolume int    `json:"totalVolume,omitempty"`
 }
 
-type BuyShipShipStruct struct {
-	Id             string  `json:"id,omitempty"`
-	Location       string  `json:"location,omitempty"`
-	X              int     `json:"x,omitempty"`
-	Y              int     `json:"y,omitempty"`
-	Cargo          []Cargo `json:"cargo,omitempty"`
-	SpaceAvailable int     `json:"spaceAvailable,omitempty"`
-	Type           string  `json:"type,omitempty"`
-	Class          string  `json:"class,omitempty"`
-	MaxCargo       int     `json:"maxCargo,omitempty"`
-	LoadingSpeed   int     `json:"loadingSpeed,omitempty"`
-	Speed          int     `json:"speed,omitempty"`
-	Manufacturer   string  `json:"manufacturer,omitempty"`
-	Plating        int     `json:"plating,omitempty"`
-	Weapons        int     `json:"weapons,omitempty"`
+type Ship struct {
+	Id                string             `json:"id,omitempty"`
+	Location          string             `json:"location,omitempty"`
+	X                 int                `json:"x,omitempty"`
+	Y                 int                `json:"y,omitempty"`
+	Cargo             []Cargo            `json:"cargo,omitempty"`
+	SpaceAvailable    int                `json:"spaceAvailable,omitempty"`
+	Type              string             `json:"type,omitempty"`
+	Class             string             `json:"class,omitempty"`
+	MaxCargo          int                `json:"maxCargo,omitempty"`
+	LoadingSpeed      int                `json:"loadingSpeed,omitempty"`
+	Speed             int                `json:"speed,omitempty"`
+	Manufacturer      string             `json:"manufacturer,omitempty"`
+	Plating           int                `json:"plating,omitempty"`
+	Weapons           int                `json:"weapons,omitempty"`
+	PurchaseLocations []PurchaseLocation `json:"purchaseLocations,omitempty"`
+	RestrictedGoods   []string           `json:"restrictedGoods,omitempty"`
 }
 
-type BuyShipStruct struct {
-	Credits int               `json:"credits,omitempty"`
-	Ship    BuyShipShipStruct `json:"ship,omitempty"`
+type User struct {
+	Credits int `json:"credits,omitempty"`
 }
 
-func ListOtherShips(filter string) (ShipListing, error) {
-	creds, err := account.GetUsernameAndToken()
-	if err != nil {
-		log.Fatalln(err)
-	}
+type ShipReceipt struct {
+	User User `json:"user,omitempty"`
+	Ship Ship `json:"ship,omitempty"`
+}
 
-	url := fmt.Sprintf("https://api.spacetraders.io/systems/OE/ship-listings?token=%s", url.QueryEscape(creds.Token))
-	resp, err := http.Get(url)
-	if err != nil {
-		log.Fatalln(err)
+type FlightPlan struct {
+	ArrivesAt              string `json:"arrivesAt,omitempty"`
+	CreatedAt              string `json:"createdAt,omitempty"`
+	Departure              string `json:"departure,omitempty"`
+	Destination            string `json:"destination,omitempty"`
+	Distance               int    `json:"distance,omitempty"`
+	FuelConsumed           int    `json:"fuelConsumed,omitempty"`
+	FuelRemaining          int    `json:"fuelRemaining,omitempty"`
+	Id                     string `json:"id,omitempty"`
+	ShipId                 string `json:"shipId,omitempty"`
+	TerminatedAt           string `json:"terminatedAt,omitempty"`
+	TimeRemainingInSeconds int    `json:"timeRemainingInSeconds,omitempty"`
+}
+
+func List(filter string) ([]Ship, error) {
+	type ShipListing struct {
+		Ships []Ship `json:"shipListings,omitempty"`
 	}
 
 	var shipListing ShipListing
-	err = json.NewDecoder(resp.Body).Decode(&shipListing)
+	url := "https://api.spacetraders.io/systems/OE/ship-listings"
+	params := map[string]string{}
+
+	err := utils.Get(url, params, &shipListing)
 	if err != nil {
-		log.Fatalln(err)
+		return make([]Ship, 0), err
 	}
 
 	if filter == "" {
-		return shipListing, nil
+		return shipListing.Ships, nil
 
 	} else {
 		splitFilter := strings.Split(filter, "=")
@@ -118,59 +107,70 @@ func ListOtherShips(filter string) (ShipListing, error) {
 			}
 		}
 
-		return ShipListing{Ships: filteredShipListing}, nil
+		return filteredShipListing, nil
 	}
 }
 
-func ListMyShips() ([]BuyShipShipStruct, error) {
+func Buy(shipType string, location string) (ShipReceipt, error) {
+	var shipReceipt ShipReceipt
+	url := "https://api.spacetraders.io/my/ships"
+	params := map[string]string{
+		"type":     shipType,
+		"location": location,
+	}
+
+	ok, err := utils.Post(url, params, &shipReceipt)
+	if !ok {
+		return ShipReceipt{}, err
+	}
+
+	return shipReceipt, nil
+}
+
+func Owned(shipId string) ([]Ship, error) {
 	type MyShips struct {
-		Ships []BuyShipShipStruct `json:"ships,omitempty"`
-	}
-
-	creds, err := account.GetUsernameAndToken()
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	url := fmt.Sprintf("https://api.spacetraders.io/my/ships?token=%s", url.QueryEscape(creds.Token))
-	resp, err := http.Get(url)
-	if err != nil {
-		log.Fatalln(err)
+		Ships []Ship `json:"ships,omitempty"`
 	}
 
 	var myShips MyShips
-	err = json.NewDecoder(resp.Body).Decode(&myShips)
+	params := map[string]string{}
+	url := "https://api.spacetraders.io/my/ships"
+
+	err := utils.Get(url, params, &myShips)
 	if err != nil {
-		log.Fatalln(err)
+		return nil, err
 	}
 
-	return myShips.Ships, nil
+	if shipId == "" {
+		return myShips.Ships, nil
+	}
+
+	filteredShipList := make([]Ship, 0, len(myShips.Ships))
+	for _, ship := range myShips.Ships {
+		if ship.Id == shipId {
+			filteredShipList = append(filteredShipList, ship)
+		}
+	}
+
+	return filteredShipList, nil
 }
 
-func BuyShip(shipType string, location string) (BuyShipStruct, error) {
-	creds, err := account.GetUsernameAndToken()
-	if err != nil {
-		log.Fatalln(err)
+func CreateFlightPlan(shipId string, destination string) (FlightPlan, error) {
+	type FPResponse struct {
+		FP FlightPlan `json:"flightPlan,omitempty"`
 	}
 
-	url := fmt.Sprintf("https://api.spacetraders.io/my/ships?token=%s", url.QueryEscape(creds.Token))
-	postBody, _ := json.Marshal(map[string]string{
-		"type":     shipType,
-		"location": location,
-	})
-	responseBody := bytes.NewBuffer(postBody)
-	resp, err := http.Post(url, "application/json", responseBody)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	defer resp.Body.Close()
-
-	// given the response, format it into the new struct
-	var buyShipResponse BuyShipStruct
-	err = json.NewDecoder(resp.Body).Decode(&buyShipResponse)
-	if err != nil {
-		log.Fatalln(err)
+	var fpr FPResponse
+	url := "https://api.spacetraders.io/my/flight-plans"
+	params := map[string]string{
+		"shipId":      shipId,
+		"destination": destination,
 	}
 
-	return buyShipResponse, nil
+	ok, err := utils.Post(url, params, &fpr)
+	if !ok {
+		return FlightPlan{}, err
+	}
+
+	return fpr.FP, nil
 }

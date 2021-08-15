@@ -1,14 +1,11 @@
 package goods
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"log"
-	"net/http"
+	"strings"
 
-	"github.com/amead24/gotraders/pkgs/account"
+	"github.com/amead24/gotraders/pkgs/ships"
+	"github.com/amead24/gotraders/pkgs/utils"
 )
 
 type Good struct {
@@ -19,34 +16,29 @@ type Good struct {
 	Spread               int    `json:"spread,omitempty"`
 	Symbol               string `json:"symbol,omitempty"`
 	VolumePerUnit        int    `json:"volumePerUnit,omitempty"`
+	System               string
 }
 
-func List(symbol string) ([]Good, error) {
+func List(goodFilter string, system string) ([]Good, error) {
+	// TODO: These should look up where all your ships are
+	// and list the union of all of them with that location
 	type Marketplace struct {
 		GoodsList []Good `json:"marketplace"`
 	}
 
-	creds, err := account.GetUsernameAndToken()
-	if err != nil {
-		return make([]Good, 0), err
-	}
-
-	url := fmt.Sprintf("https://api.spacetraders.io/locations/OE-PM-TR/marketplace?token=%s", creds.Token)
-	resp, err := http.Get(url)
-	if err != nil {
-		return make([]Good, 0), err
-	}
-
+	url := fmt.Sprintf("https://api.spacetraders.io/locations/%s/marketplace", system)
+	params := map[string]string{}
 	var mp Marketplace
-	err = json.NewDecoder(resp.Body).Decode(&mp)
+
+	err := utils.Get(url, params, &mp)
 	if err != nil {
 		return make([]Good, 0), err
 	}
 
-	if symbol != "" {
+	if goodFilter != "" {
 		filteredGoodsList := make([]Good, 0, len(mp.GoodsList))
 		for _, good := range mp.GoodsList {
-			if good.Symbol == symbol {
+			if good.Symbol == goodFilter {
 				filteredGoodsList = append(filteredGoodsList, good)
 			}
 		}
@@ -58,30 +50,6 @@ func List(symbol string) ([]Good, error) {
 }
 
 func Buy(shipId string, good string, quantity int) (string, error) {
-	// What does the user rreally neeed to know afteer buying something?
-	type Cargo struct {
-		Good        string `json:"good,omitempty"`
-		Quantity    int    `json:"quantity,omitempty"`
-		TotalVolume int    `json:"totalVolume,omitempty"`
-	}
-
-	type Ship struct {
-		Id             string  `json:"id,omitempty"`
-		Location       string  `json:"location,omitempty"`
-		X              int     `json:"x,omitempty"`
-		Y              int     `json:"y,omitempty"`
-		Cargo          []Cargo `json:"cargo,omitempty"`
-		SpaceAvailable int     `json:"spaceAvailable,omitempty"`
-		Type           string  `json:"type,omitempty"`
-		Class          string  `json:"class,omitempty"`
-		MaxCargo       int     `json:"maxCargo,omitempty"`
-		LoadingSpeed   int     `json:"loadingSpeed,omitempty"`
-		Speed          int     `json:"speed,omitempty"`
-		Manufacturer   string  `json:"manufacturer,omitempty"`
-		Plating        int     `json:"plating,omitempty"`
-		Weapons        int     `json:"weapons,omitempty"`
-	}
-
 	type Order struct {
 		Good         string `json:"good,omitempty"`
 		PricePerUnit int    `json:"pricePerUnit,omitempty"`
@@ -90,56 +58,47 @@ func Buy(shipId string, good string, quantity int) (string, error) {
 	}
 
 	type GoodsBuy struct {
-		Credits int   `json:"credits,omitempty"`
-		Order   Order `json:"order,omitempty"`
-		Ship    Ship  `json:"ship,omitempty"`
+		Credits int        `json:"credits,omitempty"`
+		Order   Order      `json:"order,omitempty"`
+		Ship    ships.Ship `json:"ship,omitempty"`
 	}
-
-	creds, err := account.GetUsernameAndToken()
-	if err != nil {
-		return "", nil
-	}
-
-	url := fmt.Sprintf("https://api.spacetraders.io/my/purchase-orders?token=%s", creds.Token)
-	postBody, _ := json.Marshal(map[string]string{
-		"shipId":   shipId,
-		"good":     good,
-		"quantity": fmt.Sprint(quantity),
-	})
-	responseBody := bytes.NewBuffer(postBody)
-	resp, err := http.Post(url, "application/json", responseBody)
-	if err != nil {
-		log.Println(err)
-		return "", nil
-	}
-	defer resp.Body.Close()
-
-	// Problem:
-	// this causes  the next parsing of resp.Body to be empty
-	// is this triggerinng the defer?
-	// https://stackoverflow.com/a/43021236/5660197
-	bodyBytes, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Println(err)
-		log.Fatal(err)
-	}
-	fmt.Println(string(bodyBytes))
 
 	var gb GoodsBuy
-	resp.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
-	decoder := json.NewDecoder(resp.Body)
-	if err := decoder.Decode(&gb); err != nil {
-		if terr, ok := err.(*json.UnmarshalTypeError); ok {
-			fmt.Printf("Failed to unmarshal field %s \n", terr.Field)
-		} else {
-			fmt.Println("global fail")
-			fmt.Printf("error == %s\n", err)
-		}
-	} else {
-		fmt.Println(gb)
+	url := "https://api.spacetraders.io/my/purchase-orders"
+	params := map[string]string{
+		"shipId":   shipId,
+		"good":     strings.ToUpper(good),
+		"quantity": fmt.Sprint(quantity),
 	}
 
-	fmt.Printf("gb == %+v", gb)
+	_, err := utils.Post(url, params, &gb)
+	if err != nil {
+		return "", err
+	}
 
-	return fmt.Sprintf("New total: %d", gb.Order.Total), nil
+	return "", nil
+}
+
+type SellReceipt struct {
+	Credits int        `json:"credits,omitempty"`
+	Order   Good       `json:"order,omitempty"`
+	Ship    ships.Ship `json:"ship,omitempty"`
+}
+
+func Sell(shipId string, good string, quantity int) (SellReceipt, error) {
+	var sr SellReceipt
+	url := "https://api.spacetraders.io/my/sell-orders"
+	params := map[string]string{
+		"shipId":   shipId,
+		"good":     good,
+		"quantity": fmt.Sprintf("%d", quantity),
+	}
+
+	ok, err := utils.Post(url, params, &sr)
+	if !ok {
+		fmt.Printf("Error: %s", err)
+		return SellReceipt{}, err
+	}
+
+	return sr, nil
 }

@@ -21,3 +21,18 @@ When to use `panic`: "the main thing is that it should be utilized in cases wher
 
 4. betterr understand reflect package
 i'd like to do something to the equiv of python's `getaddr(obj, key) == value`
+
+
+# Learning Goals for Week 08/01/2021
+
+1. pointers & referances?
+
+2. error handling closer to the source
+
+**need to continue debugging flight paths**
+
+WHAT AM I GOING TO WRITE tomorrow?
+
+
+# Learning Goals for week 08/08/2021
+
